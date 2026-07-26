@@ -5,6 +5,9 @@ __pycache__/
 .venv/
 venv/
 
+# Local data
+.cache/
+
 # Tooling
 .mypy_cache/
 .ruff_cache/
@@ -13,6 +16,7 @@ venv/
 
 # Environment / secrets
 .env
+.envrc
 
 # Editors & OS
 .idea/

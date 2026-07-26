@@ -32,13 +32,51 @@ Posting is idempotent: the review comment carries a hidden marker
 | `--show-prompt` | Print the assembled prompt and exit without calling the LLM |
 | `--model NAME` | Override the model for this run |
 
+## Duplicate detection
+
+```bash
+uv run issue-duplicates.py digitalfabrik/lunes-cms 914
+```
+
+Embeds all open issues of the repository via the `/v1/embeddings` endpoint and
+ranks them by cosine similarity against the given issue. Embeddings are cached
+in `.cache/` and only re-computed for new or changed issues.
+
+| Flag | Effect |
+|------|--------|
+| `--top N` | Number of matches to show (default: 5) |
+| `--min-score X` | Minimum similarity to report (default: 0.5) |
+| `--no-cache` | Ignore and rebuild the embedding cache |
+| `--llm` | Rank candidates with the chat model instead of embeddings |
+
+If the endpoint offers no embedding model (e.g. an Open WebUI backed only by
+a LiteLLM chat proxy), use `--llm`: the chat model gets the target issue plus
+all candidate titles/excerpts and returns scored matches as JSON. Slower and
+less precise than embeddings, but needs nothing beyond the chat model.
+
+### Local configuration
+
+With [direnv](https://direnv.net/) installed, put the environment into
+`.envrc` (gitignored, holds your API key):
+
+```bash
+export LLM_BASE_URL=https://<your-openwebui-host>/api
+export LLM_API_KEY=sk-...
+export LLM_MODEL=verdigado-think
+```
+
+Then run `direnv allow`. Note for Open WebUI: the base URL must end in
+`/api` — its OpenAI-compatible routes live under `/api/v1/...` and all
+require a Bearer API key (Settings → Account → API Keys).
+
 ### Environment variables
 
 | Variable | Default | Purpose |
 |----------|---------|---------|
 | `LLM_BASE_URL` | `http://localhost:11434` | OpenAI-compatible endpoint base URL |
 | `LLM_MODEL` | `gemma4:31b` | Model name |
-| `LLM_API_KEY` | *(empty)* | Bearer token for the LLM endpoint (e.g. LiteLLM) |
+| `LLM_API_KEY` | *(empty)* | Bearer token for the LLM endpoint (e.g. Open WebUI, LiteLLM) |
+| `EMBED_MODEL` | `nomic-embed-text` | Embedding model for duplicate detection |
 | `GITHUB_TOKEN` | *(empty)* | GitHub API token; optional for reading public repos, required for `--post` |
 
 ## What the review contains
@@ -64,9 +102,7 @@ Rough roadmap, in order of expected value:
    `suggested_labels`, `search_keywords`, `open_questions`) via constrained
    output; step 2 uses it to drive code search and compose the final review.
    More reliable than one giant prompt for mid-size models.
-3. **Duplicate detection** — embed all open issues once (e.g.
-   `nomic-embed-text` via Ollama), cosine-match new issues against them.
-   Cheap; no LLM call needed for retrieval.
+3. ~~**Duplicate detection**~~ — done, see `issue-duplicates.py`.
 4. **PR review** — port of the Forgejo `llm-pr-review.py` to the GitHub API:
    diff + commit messages in, idempotent review comment out.
 5. **Eval harness** — run the agent on already-closed issues and compare

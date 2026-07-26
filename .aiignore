@@ -1,5 +1,6 @@
 # Never feed secrets or local config to AI tools
 .env
+.envrc
 *.pem
 *.key
 secrets*
