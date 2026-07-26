@@ -24,6 +24,45 @@ uv run issue-review.py digitalfabrik/lunes-cms 914 --post
 Posting is idempotent: the review comment carries a hidden marker
 (`<!-- llm-issue-review -->`) and is updated in place on subsequent runs.
 
+### Example
+
+```text
+$ uv run issue-review.py digitalfabrik/lunes-cms 914
+Fetching issue digitalfabrik/lunes-cms#914 ...
+Issue: "Add a pronunciation field" — 0 comment(s), 22 repo label(s)
+
+### Classification
+Feature request. The issue asks for a new pronunciation field to override
+default AI audio generation for loan words.
+
+### Completeness
+Insufficient. While the goal is clear, it lacks:
+- The specific entity or model where this field should be added
+  (e.g., Vocabulary/Word entry).
+- Acceptance criteria for how the substitution logic should handle multiple
+  occurrences of a word within a sentence.
+- UI design specifications for the suggested "hint" text.
+
+### Labels
+- Remove `ready`: The implementation details for sentence replacement are too
+  vague to be considered ready for development.
+- Add `ui-ux`: A new input field and helper text are required in the interface.
+- Add `python`: Changes to the audio generation backend logic are necessary.
+- Add `needs discussion`: The technical approach to replacing words within
+  sentences needs to be defined.
+
+### Open questions
+- Which database model/endpoint should store this pronunciation value?
+- Should the replacement in sentences be a simple string replace or handle
+  case sensitivity and stemming?
+- Does this field apply globally to a word across all sentences, or is it
+  per-sentence?
+
+### Suggested next step
+Ask the reporter to specify which object/model needs the new field and how
+the sentence substitution should behave
+```
+
 ### Options
 
 | Flag | Effect |
