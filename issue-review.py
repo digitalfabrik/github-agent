@@ -56,6 +56,17 @@ each suggestion. If the current labels are already correct, say so.
 Design or scoping questions the issue leaves unanswered that should be
 resolved before implementation starts.
 
+### Effort estimate
+Only if the issue is actionable as written: a rough size — S (hours),
+M (a day or two), L (several days, consider splitting) — with a one-line
+justification. Otherwise state that the open questions block estimation.
+
+### Test coverage
+Whether the change warrants end-to-end test coverage. If yes, recommend
+either covering it in the implementing PR or filing a separate follow-up
+issue for it. If not, one line on why (e.g. backend-only, covered by unit
+tests).
+
 ### Suggested next step
 One sentence, e.g. "ready to implement", "needs maintainer decision on X",
 "ask the reporter for Y".
