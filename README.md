@@ -7,6 +7,7 @@ endpoint (Ollama, LiteLLM, Open WebUI, ...):
 | Script | What it does |
 |--------|--------------|
 | [`issue-review.py`](#issue-reviewpy) | Reviews an issue: classification, completeness, label suggestions, open questions, effort estimate, test coverage |
+| [`pr-review.py`](#pr-reviewpy) | Reviews a pull request using PR metadata, file list and diff |
 | [`pr-labels.py`](#pr-labelspy) | Suggests labels for a pull request from its description, commits and diff |
 | [`issue-duplicates.py`](#issue-duplicatespy) | Finds likely duplicates of an issue among the open issues |
 
@@ -105,6 +106,26 @@ malformed CSV to verify that the import is rejected.
 ### Suggested next step
 Ready to implement.
 ```
+
+## pr-review.py
+
+Reviews a single Pull Request. The model receives the PR (body, commit messages,
+labels, diff) and produces a review.
+
+```bash
+uv run pr-review.py digitalfabrik/lunes-cms 1034
+```
+
+| Flag | Effect |
+|------|--------|
+| `--post` | Post/update the review as an issue comment (requires `GITHUB_TOKEN`) |
+| `--show-prompt` | Print the assembled prompt and exit without calling the LLM |
+| `--prompt-path` | Override the path at which to look for a custom system prompt in the repository |
+| `--stdin-prompt` | Read the system prompt from stdin |
+| `--model NAME` | Override the model for this run |
+
+Posting is idempotent: the review comment carries a hidden marker
+(`<!-- llm-pr-review -->`) and is updated in place on subsequent runs.
 
 ## pr-labels.py
 
