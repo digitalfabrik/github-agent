@@ -7,6 +7,7 @@ endpoint (Ollama, LiteLLM, Open WebUI, ...):
 | Script | What it does |
 |--------|--------------|
 | [`issue-review.py`](#issue-reviewpy) | Reviews an issue: classification, completeness, label suggestions, open questions, effort estimate, test coverage |
+| [`pr-review.py`](#pr-reviewpy) | Reviews a pull request using PR metadata, file list and diff |
 | [`pr-labels.py`](#pr-labelspy) | Suggests labels for a pull request from its description, commits and diff |
 | [`issue-duplicates.py`](#issue-duplicatespy) | Finds likely duplicates of an issue among the open issues |
 
@@ -27,6 +28,7 @@ endpoint, configured via environment variables:
 | `LLM_API_KEY` | *(empty)* | Bearer token for the LLM endpoint (e.g. Open WebUI, LiteLLM) |
 | `EMBED_MODEL` | `nomic-embed-text` | Embedding model for duplicate detection |
 | `GITHUB_TOKEN` | *(empty)* | GitHub API token; optional for reading public repos, required for writing |
+| `GITHUB_BOT_LOGIN` | `deliverino[bot]` | Login of the account that posts reviews; `pr-review.py --post` only updates comments by this account |
 
 With [direnv](https://direnv.net/) installed, put the environment into
 `.envrc` (gitignored, holds your API key) and run `direnv allow`:
@@ -105,6 +107,28 @@ malformed CSV to verify that the import is rejected.
 ### Suggested next step
 Ready to implement.
 ```
+
+## pr-review.py
+
+Reviews a single Pull Request. The model receives the PR (body, commit messages,
+labels, diff) and produces a review.
+
+```bash
+uv run pr-review.py digitalfabrik/lunes-cms 1034
+```
+
+| Flag | Effect |
+|------|--------|
+| `--post` | Post/update the review as an issue comment (requires `GITHUB_TOKEN`) |
+| `--show-prompt` | Print the system prompt and the assembled user prompt and exit without calling the LLM |
+| `--prompt-path` | Override the path at which to look for a custom system prompt in the repository |
+| `--stdin-prompt` | Read the system prompt from stdin |
+| `--model NAME` | Override the model for this run |
+
+Posting is idempotent: the review comment carries a hidden marker
+(`<!-- llm-pr-review -->`) and is updated in place on subsequent runs.
+Only comments by `GITHUB_BOT_LOGIN` are considered, so a marker copied into
+someone else's comment is ignored.
 
 ## pr-labels.py
 
